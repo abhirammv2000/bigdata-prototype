@@ -48,7 +48,7 @@ def search_repo_snippets(
         dirnames[:] = [
             d
             for d in dirnames
-            if d not in {".git", ".venv", "__pycache__", "node_modules"} and not d.startswith(".")
+            if d not in {".git", ".venv", "__pycache__", "node_modules", "legacy"} and not d.startswith(".")
         ]
 
         for filename in filenames:

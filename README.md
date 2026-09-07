@@ -42,7 +42,7 @@ A production-grade big data platform deployed on **Google Kubernetes Engine (GKE
 | **LLM** | Google Gemini 2.5 Flash | Via Google AI Studio API key |
 | **Embeddings** | all-MiniLM-L6-v2 | Local sentence-transformers, no API needed |
 | **Vector DB** | ChromaDB (local, PVC-backed) | 4 collections: code, logs, DAG metadata, lineage |
-| **Pipelines** | Apache Airflow (6 DAGs) | Full data lake pipeline with OpenLineage emission |
+| **Pipelines** | Apache Airflow (7 DAGs) | Full data lake pipeline with OpenLineage emission |
 | **Lineage** | OpenLineage + Marquez | Data flow tracking from landing → models |
 | **Infra** | GKE (Google Kubernetes Engine) | 3 namespaces, LoadBalancer services, PVCs |
 
@@ -56,6 +56,7 @@ A production-grade big data platform deployed on **Google Kubernetes Engine (GKE
 | `ml_pipeline` | `@weekly` | Feature engineering + RandomForest training + evaluation |
 | `demo_pipeline` | Manual | End-to-end demo with clean/bad data toggle (`inject_bad_data: true/false`) |
 | `demo_observability` | Manual | Intentionally failing DAG for chatbot diagnosis demo |
+| `deploy_pipeline` | `@weekly` | Runs the test suite, then builds container images + deploys services to Kubernetes |
 
 ### Data Lake Zones
 
@@ -186,10 +187,32 @@ python -c "import sys; open('_tmp.yaml','w').write(open('k8s/airflow/deployment.
 
 ### Service URLs (after deploy)
 
+A single LoadBalancer (the `frontend` service in the `backend` namespace) fronts
+everything — nginx path-routes to the backend API, Airflow, and Marquez:
+
 ```bash
-kubectl -n backend get svc frontend        # Main app (port 80)
-kubectl -n airflow get svc airflow-webserver  # Airflow UI (port 80)
+LB_IP=$(kubectl -n backend get svc frontend -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+
+echo "App:     http://$LB_IP/"
+echo "Airflow: http://$LB_IP/airflow/   (admin / admin)"
+echo "Marquez: http://$LB_IP/marquez/"
+echo "Health:  http://$LB_IP/health"
 ```
+
+### Cost control
+
+The `deploy-gke.sh` defaults (`bigdata-lean` cluster, 2× `e2-standard-4` spot
+nodes) run ~$35–40/month 24/7. To pause charges between demos without deleting
+anything:
+
+```bash
+# scale the nodepool to zero (LoadBalancer + persistent disks stay)
+gcloud container clusters resize bigdata-lean --num-nodes=0 --zone us-central1-a
+# scale back up when you need it
+gcloud container clusters resize bigdata-lean --num-nodes=2 --zone us-central1-a
+```
+
+To tear everything down (cluster, LoadBalancer, Artifact Registry repo): `./scripts/teardown-gke.sh`.
 
 ## Demo Scenarios
 
@@ -268,7 +291,8 @@ bigdata-prototype/
 │   │   ├── K8sPage.jsx          # Pod browser + namespace diagnosis
 │   │   └── LineagePage.jsx      # Data flow + task lineage view
 │   └── components/
-│       ├── Sidebar.jsx           # Navigation + ChromaDB stats + actions
+│       ├── Navbar.jsx            # Top nav bar (page links)
+│       ├── Sidebar.jsx           # ChromaDB stats + index/sync actions
 │       ├── ModeSelector.jsx      # LLM mode selector
 │       └── LogResultDisplay.jsx  # Analysis result card + Ask in Chat
 ├── docker/
@@ -289,8 +313,17 @@ bigdata-prototype/
 │   └── demo-faults.yaml         # Broken pods for K8s observability demo
 └── scripts/
     ├── deploy-gke.sh            # Full one-command GKE deployment
-    └── teardown-gke.sh          # Delete cluster and all resources
+    ├── teardown-gke.sh          # Delete cluster and all resources
+    ├── index_codebase.py        # Manually re-index the codebase into ChromaDB
+    ├── sync_lineage.py          # Manually sync Marquez lineage into ChromaDB
+    ├── analyze_airflow_task.py  # CLI: fetch + analyze an Airflow task log
+    ├── analyze_k8s_pod.py       # CLI: fetch + analyze a Kubernetes pod log
+    ├── analyze_command.py       # CLI: run a command and analyze its output
+    └── post_logs.py             # CLI: POST a log file to the backend analyzer
 ```
+
+> Older architecture write-ups (pre-GKE: Docker Compose, Streamlit, Ollama,
+> Cloud Run + Composer) are kept under [`docs/legacy/`](docs/legacy/).
 
 ## How the RAG Pipeline Works
 

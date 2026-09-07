@@ -31,22 +31,10 @@ def list_jobs(namespace: str = "default") -> list[dict[str, Any]]:
     return resp.json().get("jobs", [])
 
 
-def get_job(namespace: str, job_name: str) -> dict[str, Any]:
-    resp = requests.get(_api(f"/namespaces/{namespace}/jobs/{job_name}"), timeout=10)
-    resp.raise_for_status()
-    return resp.json()
-
-
 def list_datasets(namespace: str = "default") -> list[dict[str, Any]]:
     resp = requests.get(_api(f"/namespaces/{namespace}/datasets"), timeout=10)
     resp.raise_for_status()
     return resp.json().get("datasets", [])
-
-
-def get_dataset(namespace: str, dataset_name: str) -> dict[str, Any]:
-    resp = requests.get(_api(f"/namespaces/{namespace}/datasets/{dataset_name}"), timeout=10)
-    resp.raise_for_status()
-    return resp.json()
 
 
 def get_job_runs(namespace: str, job_name: str, limit: int = 10) -> list[dict[str, Any]]:

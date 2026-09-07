@@ -30,7 +30,8 @@ logger = logging.getLogger(__name__)
 _model: SentenceTransformer | None = None
 
 _ALLOWED_CODE_EXTS = {".py", ".sql", ".yml", ".yaml", ".md", ".toml", ".json", ".sh", ".cfg", ".txt"}
-_SKIP_DIRS = {".git", ".venv", "__pycache__", "node_modules", ".chromadb", ".mypy_cache", ".pytest_cache"}
+# "legacy" holds archived pre-GKE docs (docs/legacy/) — keep them out of the RAG index
+_SKIP_DIRS = {".git", ".venv", "__pycache__", "node_modules", ".chromadb", ".mypy_cache", ".pytest_cache", "legacy"}
 
 
 def _get_model() -> SentenceTransformer:
