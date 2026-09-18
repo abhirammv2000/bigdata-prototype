@@ -181,7 +181,7 @@ def check_duplicates(**context):
     max_dup_ratio = float(os.getenv("MAX_DUPLICATE_RATIO", "0.05"))
 
     violations = []
-    for f in join_path(curated_zone):
+    for f in list_files(curated_zone):
         if not f.endswith(".csv") or f.startswith("."):
             continue
         df = pd.read_csv(join_path(curated_zone, f))

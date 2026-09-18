@@ -375,8 +375,6 @@ export default function LineagePage() {
     return derived
   })()
 
-  const nsName = typeof (namespaces[0]) === 'string' ? namespaces[0] : namespaces[0]?.name
-
   return (
     <div className="space-y-5">
       {/* Header */}
