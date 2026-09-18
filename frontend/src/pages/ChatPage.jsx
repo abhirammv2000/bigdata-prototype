@@ -152,7 +152,7 @@ function MarkdownMessage({ text }) {
           ol:     ({ children }) => <ol className="mb-2 list-decimal pl-5">{children}</ol>,
           li:     ({ children }) => <li className="mb-0.5">{children}</li>,
           strong: ({ children }) => <strong className="font-semibold text-white">{children}</strong>,
-          code:   ({ node, className, children, ...props }) => {
+          code:   ({ className, children }) => {
             // react-markdown v7+ removed the `inline` prop — detect by newlines or language class
             const isBlock = className || String(children).includes('\n')
             return isBlock
