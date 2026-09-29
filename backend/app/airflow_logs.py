@@ -71,5 +71,5 @@ def fetch_airflow_task_logs(
             raise ValueError("Airflow returned empty log content.")
         # Guard against HTML responses (auth redirect)
         if text.startswith("<!") or text.startswith("<html"):
-            raise ValueError("Airflow returned HTML instead of logs — auth issue.")
+            raise ValueError("Airflow returned HTML instead of logs, likely an auth issue.")
         return text

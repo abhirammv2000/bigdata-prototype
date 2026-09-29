@@ -1,16 +1,16 @@
-"""DAG: demo_pipeline — Full end-to-end pipeline demo with clean and bad data scenarios.
+"""DAG: demo_pipeline. Full end-to-end pipeline demo with clean and bad data scenarios.
 
 PURPOSE:
   This DAG is specifically for demonstrating the AI Observability chatbot.
   It runs the FULL pipeline in one DAG so you can see everything at once.
 
 TWO SCENARIOS (select when triggering):
-  Scenario A — inject_bad_data: false  (default)
+  Scenario A: inject_bad_data: false  (default)
     → Runs full pipeline with clean data only
     → All tasks go GREEN
     → Shows the happy path works
 
-  Scenario B — inject_bad_data: true
+  Scenario B: inject_bad_data: true
     → Copies bad_orders.csv into the pipeline
     → validate_raw_data FAILS  (SchemaValidationError + DataTypeError)
     → clean_data FAILS          (non-numeric price, wrong columns)
@@ -45,13 +45,13 @@ paths = build_paths()
 default_args = {
     "owner": "data-platform",
     "depends_on_past": False,
-    "retries": 0,         # No retries in demo — fail fast and show the error clearly
+    "retries": 0,         # No retries in demo, fail fast and show the error clearly
     "retry_delay": timedelta(minutes=1),
 }
 
 
 # ─────────────────────────────────────────────────────────────
-# STEP 1 — Setup: inject or clean bad data
+# STEP 1: Setup, inject or clean bad data
 # ─────────────────────────────────────────────────────────────
 
 def setup_demo_data(**context):
@@ -92,7 +92,7 @@ def setup_demo_data(**context):
             os.remove(bad_dst)
             print("DEMO MODE: Removed bad_orders.csv from landing/ (clean run)")
         print("=" * 60)
-        print("DEMO MODE: CLEAN RUN — only good data in landing/")
+        print("DEMO MODE: CLEAN RUN, only good data in landing/")
         print("Files present:")
         for f in join_path(landing):
             if not f.startswith("."):
@@ -107,7 +107,7 @@ def setup_demo_data(**context):
 
 
 # ─────────────────────────────────────────────────────────────
-# STEP 2 — Ingest
+# STEP 2: Ingest
 # ─────────────────────────────────────────────────────────────
 
 def ingest_all_files(**context):
@@ -167,7 +167,7 @@ def ingest_api_records(**context):
     )
 
 
-# Known good schemas — any deviation triggers SchemaValidationError
+# Known good schemas; any deviation triggers SchemaValidationError
 REQUIRED_SCHEMAS = {
     "sales_data.csv": ["id", "product", "category", "quantity", "price", "status", "region"],
     "user_events.csv": ["user_id", "event_type", "timestamp", "page", "duration_seconds", "status"],
@@ -255,7 +255,7 @@ def validate_ingested_data(**context):
 
 
 # ─────────────────────────────────────────────────────────────
-# STEP 3 — Transform
+# STEP 3: Transform
 # ─────────────────────────────────────────────────────────────
 
 def clean_and_transform(**context):
@@ -343,7 +343,7 @@ def clean_and_transform(**context):
 
 
 # ─────────────────────────────────────────────────────────────
-# STEP 4 — Quality checks
+# STEP 4: Quality checks
 # ─────────────────────────────────────────────────────────────
 
 def run_quality_checks(**context):
@@ -386,14 +386,14 @@ def run_quality_checks(**context):
                 f"RowCountError in {f}: only {len(df)} row(s) (min: {min_rows})"
             )
 
-        # Null ratios — this FAILS for combined data from different schemas
+        # Null ratios: this FAILS for combined data from different schemas
         for col in [c for c in df.columns if not c.startswith("_")]:
             ratio = df[col].isnull().sum() / len(df) if len(df) > 0 else 0
             if ratio > threshold_null:
                 errors.append(
                     f"NullRatioError in {f} → '{col}': {ratio:.1%} nulls "
                     f"(threshold: {threshold_null:.0%}). "
-                    f"Likely caused by merging files with different schemas — "
+                    f"Likely caused by merging files with different schemas, "
                     f"each file's columns are NULL for rows from other files."
                 )
 
@@ -421,7 +421,7 @@ def run_quality_checks(**context):
 
 
 # ─────────────────────────────────────────────────────────────
-# STEP 5 — ML Training
+# STEP 5: ML Training
 # ─────────────────────────────────────────────────────────────
 
 def train_and_evaluate(**context):

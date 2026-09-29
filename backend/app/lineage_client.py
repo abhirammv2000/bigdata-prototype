@@ -1,4 +1,4 @@
-"""Marquez / OpenLineage client — query lineage data and ingest into VectorDB."""
+"""Marquez / OpenLineage client for querying lineage data and ingesting it into VectorDB."""
 from __future__ import annotations
 
 import logging

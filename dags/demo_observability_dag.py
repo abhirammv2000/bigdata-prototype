@@ -1,4 +1,4 @@
-"""DAG: demo_observability — Intentionally fails so you can test the AI chatbot.
+"""DAG: demo_observability. Intentionally fails so you can test the AI chatbot.
 
 PURPOSE:
     This DAG exists purely to generate realistic failures.
@@ -6,9 +6,9 @@ PURPOSE:
     "Why did the demo_observability DAG fail? How do I fix it?"
 
 TASKS:
-    1. task_ok          — succeeds (shows a healthy task)
-    2. task_fail_data   — fails with a missing-file/data error (DataQuality category)
-    3. task_fail_code   — fails with a Python TypeError (CodeLogic category)
+    1. task_ok          : succeeds (shows a healthy task)
+    2. task_fail_data   : fails with a missing-file/data error (DataQuality category)
+    3. task_fail_code   : fails with a Python TypeError (CodeLogic category)
 """
 from __future__ import annotations
 
@@ -25,13 +25,13 @@ paths = build_paths()
 default_args = {
     "owner": "data-platform",
     "depends_on_past": False,
-    "retries": 0,  # No retries — fail fast for demo
+    "retries": 0,  # No retries, fail fast for demo
     "retry_delay": timedelta(minutes=1),
 }
 
 
 def task_ok(**context):
-    """This task succeeds — it represents a healthy upstream step."""
+    """This task succeeds; it represents a healthy upstream step."""
     print("=== task_ok: Reading sample data from landing zone ===")
     import os
     landing = paths["landing"]
@@ -75,7 +75,7 @@ def task_fail_data(**context):
     missing = [c for c in required_cols if c not in df.columns]
     if missing:
         raise ValueError(
-            f"Schema mismatch — missing columns: {missing}\n"
+            f"Schema mismatch, missing columns: {missing}\n"
             f"Expected: {required_cols}\n"
             f"Got: {list(df.columns)}"
         )
@@ -96,7 +96,7 @@ def task_fail_code(**context):
     """
     print("=== task_fail_code: Computing revenue aggregation ===")
 
-    # Simulated data — mixing string and number types (common real-world bug)
+    # Simulated data, mixing string and number types (common real-world bug)
     records = [
         {"product": "Widget A", "revenue": 1500.0},
         {"product": "Widget B", "revenue": "NOT_A_NUMBER"},  # ← bug: bad data
@@ -123,7 +123,7 @@ def task_fail_code(**context):
 with DAG(
     dag_id="demo_observability",
     default_args=default_args,
-    description="Demo DAG that intentionally fails — for testing the AI observability chatbot",
+    description="Demo DAG that intentionally fails, for testing the AI observability chatbot",
     schedule="@daily",  # Manual trigger only
     start_date=datetime(2025, 1, 1),
     catchup=False,

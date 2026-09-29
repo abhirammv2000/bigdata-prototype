@@ -1,5 +1,5 @@
-"""Embedding pipeline — chunks code, logs, DAG meta, lineage data
-and indexes them into ChromaDB using sentence-transformers.
+"""Chunks code, logs, DAG meta, and lineage data, then indexes them
+into ChromaDB using sentence-transformers.
 
 Model: all-MiniLM-L6-v2  (free, ~80 MB, runs on CPU)
 """
@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 _model: SentenceTransformer | None = None
 
 _ALLOWED_CODE_EXTS = {".py", ".sql", ".yml", ".yaml", ".md", ".toml", ".json", ".sh", ".cfg", ".txt"}
-# "legacy" holds archived pre-GKE docs (docs/legacy/) — keep them out of the RAG index
+# "legacy" holds archived pre-GKE docs (docs/legacy/), keep them out of the RAG index
 _SKIP_DIRS = {".git", ".venv", "__pycache__", "node_modules", ".chromadb", ".mypy_cache", ".pytest_cache", "legacy"}
 
 

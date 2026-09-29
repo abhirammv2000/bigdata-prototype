@@ -11,8 +11,8 @@ def get_vertex_client():
     if _client is None:
         api_key = os.environ.get("GOOGLE_API_KEY", "").strip()
         if api_key:
-            # Google AI Studio API key — uses generativelanguage.googleapis.com
-            # NOT vertexai=True which uses aiplatform.googleapis.com
+            # Google AI Studio API key uses generativelanguage.googleapis.com,
+            # not vertexai=True which uses aiplatform.googleapis.com
             _client = genai.Client(api_key=api_key)
         else:
             project = get_vertex_project_id()

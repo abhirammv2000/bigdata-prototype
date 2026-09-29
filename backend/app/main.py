@@ -52,7 +52,7 @@ async def _background_sync():
     """Periodically auto-sync Airflow ops + Marquez lineage into ChromaDB.
     Also auto-triggers demo DAGs on first run if they have no runs yet.
     Runs in background so it never blocks startup."""
-    # Short initial delay — let the server fully start before making external calls
+    # Short initial delay so the server fully starts before making external calls
     await asyncio.sleep(5)
     # One-time: trigger demo DAGs if they've never run
     _DEMO_DAGS = ["demo_pipeline_dag", "demo_observability_dag"]
@@ -89,7 +89,7 @@ async def lifespan(app: FastAPI):
         print(f"[startup] auto-indexed {count} chunks from {root}")
     except Exception as e:
         print(f"[startup] indexing failed (non-fatal): {e}")
-    # Start background sync loop — all Airflow/Marquez calls happen there
+    # Start background sync loop; all Airflow/Marquez calls happen there
     task = asyncio.create_task(_background_sync())
     yield
     task.cancel()
@@ -100,7 +100,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="BigData Platform — Observability Agent",
+    title="BigData Platform Observability Agent",
     version="1.0.0",
     lifespan=lifespan,
 )

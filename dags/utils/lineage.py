@@ -63,5 +63,5 @@ def emit_dataset_lineage(
         resp.raise_for_status()
         print(f"[lineage] {job_name}: {len(inputs)} input(s) → {len(outputs)} output(s)")
     except Exception as e:
-        # Non-fatal — never break the task because of lineage emission
+        # Non-fatal: never break the task because of lineage emission
         print(f"[lineage] WARNING: could not emit lineage for {job_name}: {e}")

@@ -1,4 +1,4 @@
-"""DAG: data_transformation — Cleans, transforms, and aggregates raw data.
+"""DAG: data_transformation. Cleans, transforms, and aggregates raw data.
 
 Reads from raw zone, applies transformations, writes to processed zone.
 OpenLineage tracks every input/output dataset automatically.
@@ -33,7 +33,7 @@ def clean_data(**context):
 
     Failure scenarios:
       - DataTypeError: price column contains non-numeric values (e.g. 'N/A', 'unknown')
-      - DataTypeError: negative prices detected — possible data corruption
+      - DataTypeError: negative prices detected, possible data corruption
       - EmptyDataError: all rows dropped after cleaning
     """
     import os
@@ -45,7 +45,7 @@ def clean_data(**context):
     ensure_dir(staging, exist_ok=True)
 
     if not path_exists(raw_zone):
-        print(f"Raw zone not found: {raw_zone} — skipping (run data_ingestion first)")
+        print(f"Raw zone not found: {raw_zone}, skipping (run data_ingestion first)")
         return 0
 
     processed = 0
@@ -77,7 +77,7 @@ def clean_data(**context):
             if negative_prices > 0:
                 errors.append(
                     f"DataQualityError in {f}: found {negative_prices} negative price(s). "
-                    f"Negative prices are invalid — possible sign error or data corruption in source."
+                    f"Negative prices are invalid, possible sign error or data corruption in source."
                 )
                 continue
 
@@ -86,7 +86,7 @@ def clean_data(**context):
             numeric_qty = pd.to_numeric(df["quantity"], errors="coerce")
             null_qty = numeric_qty.isna().sum()
             if null_qty > 0:
-                print(f"WARNING: {f} has {null_qty} null quantity value(s) — rows will be dropped")
+                print(f"WARNING: {f} has {null_qty} null quantity value(s), rows will be dropped")
                 df = df[numeric_qty.notna()].copy()
 
         # ── Drop rows where all values are null ──────────────
@@ -129,7 +129,7 @@ def transform_aggregate(**context):
 
     Failure scenarios:
       - FileNotFoundError: no cleaned files exist (clean_data wrote nothing)
-      - ValueError: 'status' column missing — cannot group data as expected
+      - ValueError: 'status' column missing, cannot group data as expected
     """
     import os
 

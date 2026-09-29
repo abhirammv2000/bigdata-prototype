@@ -1,6 +1,6 @@
-# BigData Platform — AI Observability Agent
+# BigData Platform: AI Observability Agent
 
-A production-grade big data platform deployed on **Google Kubernetes Engine (GKE)** with an AI-powered observability chatbot. Engineers can diagnose pipeline failures, analyze Kubernetes pod issues, trace data lineage, and get instant answers about the platform — all through a RAG-powered chat interface backed by Google Gemini.
+A big data platform on **Google Kubernetes Engine (GKE)** with an AI observability chatbot. Engineers can diagnose pipeline failures, analyze Kubernetes pod issues, trace data lineage, and ask questions about the platform through a RAG-powered chat interface backed by Google Gemini.
 
 ## Live Architecture
 
@@ -82,7 +82,7 @@ External APIs / CSVs
 
 | Page | Path | What it does |
 |---|---|---|
-| **Chat** | `/` | RAG-powered chatbot — ask anything about pipelines, pods, errors |
+| **Chat** | `/` | RAG-powered chatbot for questions about pipelines, pods, errors |
 | **Log Analysis** | `/logs` | Paste any log text → AI diagnosis (category, root cause, next actions) |
 | **Airflow** | `/airflow` | Auto-fills from recent failures, analyzes task logs |
 | **Kubernetes** | `/k8s` | Browse pods/namespaces, view events, diagnose issues |
@@ -188,7 +188,7 @@ python -c "import sys; open('_tmp.yaml','w').write(open('k8s/airflow/deployment.
 ### Service URLs (after deploy)
 
 A single LoadBalancer (the `frontend` service in the `backend` namespace) fronts
-everything — nginx path-routes to the backend API, Airflow, and Marquez:
+everything. nginx path-routes to the backend API, Airflow, and Marquez:
 
 ```bash
 LB_IP=$(kubectl -n backend get svc frontend -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
@@ -202,7 +202,7 @@ echo "Health:  http://$LB_IP/health"
 ### Cost control
 
 The `deploy-gke.sh` defaults (`bigdata-lean` cluster, 2× `e2-standard-4` spot
-nodes) run ~$35–40/month 24/7. To pause charges between demos without deleting
+nodes) run ~$35-40/month 24/7. To pause charges between demos without deleting
 anything:
 
 ```bash
@@ -373,7 +373,7 @@ Set in `k8s/backend/deployment.yaml` (ConfigMap) and as a K8s Secret:
 | `AIRFLOW_PASSWORD` | ConfigMap | `admin` |
 | `MARQUEZ_URL` | ConfigMap | Internal cluster URL for Marquez |
 
-> **Never run `kubectl apply -f k8s/backend/deployment.yaml` directly** — it contains `REPLACE_ME` as the API key placeholder. Always inject the secret separately:
+> **Never run `kubectl apply -f k8s/backend/deployment.yaml` directly.** It contains `REPLACE_ME` as the API key placeholder. Always inject the secret separately:
 > ```cmd
 > kubectl -n backend create secret generic backend-secrets --from-literal=GOOGLE_API_KEY="your-key" --dry-run=client -o yaml | kubectl apply -f -
 > ```
@@ -383,10 +383,10 @@ Set in `k8s/backend/deployment.yaml` (ConfigMap) and as a K8s Secret:
 | Issue | Solution |
 |---|---|
 | Chat returns "API key not valid" | Re-inject the secret: `kubectl -n backend create secret generic backend-secrets --from-literal=GOOGLE_API_KEY="key" --dry-run=client -o yaml \| kubectl apply -f -`, then `kubectl -n backend rollout restart deployment/backend` |
-| Chat returns "503 Unavailable" | Gemini rate limit — wait 1-2 min, or switch `VERTEX_MODEL` to `gemini-2.0-flash` |
+| Chat returns "503 Unavailable" | Gemini rate limit, wait 1-2 min, or switch `VERTEX_MODEL` to `gemini-2.0-flash` |
 | Recent failures not showing | Background sync takes ~5s after pod start. Wait and hard refresh (`Ctrl+Shift+R`) |
-| Airflow "Errno -2 Name or service not known" | Re-apply ConfigMap: `kubectl apply -f k8s/backend/deployment.yaml` (API key will be overwritten — re-inject secret after) |
+| Airflow "Errno -2 Name or service not known" | Re-apply ConfigMap: `kubectl apply -f k8s/backend/deployment.yaml` (API key will be overwritten, re-inject secret after) |
 | `kubectl` fails with `gke-gcloud-auth-plugin not found` | Run: `gcloud components install gke-gcloud-auth-plugin` |
-| `InvalidImageName` on deployment | Variables not set in CMD session — re-run `set REGISTRY=...` and `set TAG=...` before `kubectl set image` |
-| Lineage shows "no datasets" | Expand a task to see inputs/outputs. If still empty, DAGs haven't run yet — trigger a DAG in Airflow first |
+| `InvalidImageName` on deployment | Variables not set in CMD session, re-run `set REGISTRY=...` and `set TAG=...` before `kubectl set image` |
+| Lineage shows "no datasets" | Expand a task to see inputs/outputs. If still empty, DAGs haven't run yet, trigger a DAG in Airflow first |
 | Backend pod restarting | Check logs: `kubectl -n backend logs deployment/backend --tail=50` |

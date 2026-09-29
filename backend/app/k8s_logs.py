@@ -23,7 +23,7 @@ def _load_k8s_config() -> bool:
             _k8s_config_loaded = True
             return True
         except Exception:
-            # Do NOT cache failure — kubeconfig may appear later (e.g. patched at startup)
+            # Don't cache failure, kubeconfig may appear later (e.g. patched at startup)
             return False
 
 
@@ -130,14 +130,14 @@ _TROUBLESHOOT_HINTS: dict[str, str] = {
     "ImagePullBackOff": "Cluster can't pull the image. Check image name/tag exists in the registry, that the node has pull permissions (Artifact Registry IAM, imagePullSecrets), and that the tag is correct.",
     "ErrImagePull": "Cluster can't pull the image. Check image name/tag exists in the registry, that the node has pull permissions, and that you pushed the image before applying the manifest.",
     "OOMKilled": "Container exceeded its memory limit. Increase resources.limits.memory, find the memory leak, or reduce workload. Check container.last_terminated.reason.",
-    "CreateContainerConfigError": "Container config is invalid — often a missing ConfigMap/Secret referenced by envFrom or volumeMounts. Check the referenced names exist in the same namespace.",
-    "CreateContainerError": "Container failed to be created — often a broken command, missing volume, or invalid mountPath.",
+    "CreateContainerConfigError": "Container config is invalid, often a missing ConfigMap/Secret referenced by envFrom or volumeMounts. Check the referenced names exist in the same namespace.",
+    "CreateContainerError": "Container failed to be created, often a broken command, missing volume, or invalid mountPath.",
     "Evicted": "Pod was evicted due to node pressure (memory/disk). Check node conditions, add more nodes, or lower resource requests.",
     "Pending": "Pod can't be scheduled. Common causes: insufficient cluster CPU/memory, unbound PVC, node selector/taint mismatch, or unschedulable constraints. Check `kubectl describe pod` events.",
     "FailedScheduling": "Scheduler can't place the pod. Usually means the cluster doesn't have enough CPU/memory, or a PVC is waiting for a volume. Scale the nodepool or reduce requests.",
     "FailedMount": "Pod can't mount a volume. The PVC may be unbound, the Secret/ConfigMap may be missing, or a hostPath may not exist on the node.",
-    "Unhealthy": "Readiness/liveness probe failing. Check the probe path/port and whether the app actually responds there.",
-    "BackOff": "Kubelet is backing off restarting the container. Usually paired with CrashLoopBackOff — check logs and last_terminated.",
+    "Unhealthy": "Readiness/liveness probe failing. Check the probe path/port and whether the app responds there.",
+    "BackOff": "Kubelet is backing off restarting the container. Usually paired with CrashLoopBackOff, check logs and last_terminated.",
 }
 
 

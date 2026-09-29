@@ -1,4 +1,4 @@
-"""Pytest configuration — ensures project root is on sys.path."""
+"""Pytest configuration: ensures project root is on sys.path."""
 from __future__ import annotations
 
 import os

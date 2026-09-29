@@ -1,4 +1,4 @@
-"""RAG Engine — Retrieval-Augmented Generation.
+"""RAG Engine: retrieval-augmented generation.
 
 Flow:
 1. Encode user query with sentence-transformers
@@ -144,7 +144,7 @@ def _build_context_block(chunks: list[RetrievedChunk], max_chars: int = 12000) -
             or ""
         )
 
-        # Skip internal backend Python files — users should never see these cited
+        # Skip internal backend Python files, users should never see these cited
         if _is_internal_backend_file(file_path):
             continue
 
@@ -175,10 +175,10 @@ The platform uses:
 - Google Cloud Storage, BigQuery, and GKE for infrastructure
 
 When answering:
-- Be thorough and descriptive. Explain the "what", "why", and "how" — not just a one-liner.
+- Be thorough and descriptive. Explain the "what", "why", and "how" in full sentences.
 - For pipeline/DAG questions: describe what the DAG does, what each task does, what data flows through it, and what to check if something fails.
 - For error/log questions: explain what the error means, why it likely happened, what impact it has, and give step-by-step next actions.
-- For general platform questions: give a full picture with context, not just bullet points. Use examples from the actual DAGs and tasks in this project.
+- For general platform questions: give a full picture with context, not just bullet points. Use examples from the DAGs and tasks in this project.
 - Use clear headings or bullet structure when the answer has multiple parts.
 - If you are unsure about something, say so rather than guessing.
 - Never mention internal backend source files (e.g. backend/app/*.py), internal function names, or implementation details the user does not need to act on.

@@ -61,7 +61,7 @@ def _looks_like_ops_question(question: str) -> bool:
 def _format_ops_snapshot_for_user(snapshot: dict) -> str:
     dags = snapshot.get("dags", [])
     if not dags:
-        return "No live pipeline status available yet — Airflow sync has not run."
+        return "No live pipeline status available yet. Airflow sync has not run."
 
     lines = ["=== LIVE PIPELINE STATUS (from Airflow) ==="]
     failed_dags = []
@@ -82,7 +82,7 @@ def _format_ops_snapshot_for_user(snapshot: dict) -> str:
     if failed_dags:
         lines.append("\n--- FAILING DAGS ---")
         for dag_id, state, failed_tasks, all_tasks in failed_dags:
-            lines.append(f"\n[FAILED] {dag_id} — overall state: {state}")
+            lines.append(f"\n[FAILED] {dag_id} (state: {state})")
             for t in all_tasks:
                 task_state = t.get("state", "unknown")
                 tid = t.get("task_id", "?")
@@ -277,7 +277,7 @@ def chat(req: ChatRequest) -> ChatResponse:
     sources.extend({"type": "repo", "path": s.path, "snippet": s.snippet} for s in repo_snips)
     diagnostics["repo_matches"] = len(repo_snips)
 
-    parts: list[str] = ["LLM generation is currently unavailable — returning grounded context + tool summaries."]
+    parts: list[str] = ["LLM generation is currently unavailable. Returning grounded context + tool summaries."]
     if tool_notes:
         parts.append("\n".join(tool_notes))
     if repo_snips:

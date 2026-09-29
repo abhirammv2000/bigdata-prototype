@@ -1,4 +1,4 @@
-"""DAG: data_quality_checks — Validates data quality on curated datasets.
+"""DAG: data_quality_checks. Validates data quality on curated datasets.
 
 Runs after data_transformation to ensure curated data meets quality standards.
 Failures are captured by the observability agent for root-cause analysis.
@@ -32,8 +32,8 @@ def check_schema_conformance(**context):
     """Verify curated datasets have the expected metadata columns.
 
     Failure scenarios:
-      - SchemaError: metadata columns missing — enrich_with_metadata didn't run properly
-      - FileNotFoundError: curated zone empty — transformation pipeline didn't complete
+      - SchemaError: metadata columns missing because enrich_with_metadata didn't run properly
+      - FileNotFoundError: curated zone empty because the transformation pipeline didn't complete
     """
     import os
 
@@ -71,7 +71,7 @@ def check_schema_conformance(**context):
     if errors:
         raise ValueError("Schema conformance FAILED:\n" + "\n".join(f"  {e}" for e in errors))
 
-    print(f"Schema conformance PASSED — checked {len(csv_files)} file(s)")
+    print(f"Schema conformance PASSED, checked {len(csv_files)} file(s)")
     emit_dataset_lineage(
         job_name="data_quality_checks.check_schema_conformance",
         inputs=["curated/curated_combined_data.csv", "curated/curated_status_aggregation.csv"],
@@ -84,7 +84,7 @@ def check_null_ratios(**context):
 
     Failure scenarios:
       - NullRatioError: combined_data.csv has massive nulls because sales_data and
-        user_events have completely different schemas — when merged, each file's columns
+        user_events have completely different schemas, so when merged, each file's columns
         are null for the other file's rows (e.g. 'price' is null for all user_event rows)
     """
     import os
@@ -92,7 +92,7 @@ def check_null_ratios(**context):
     import pandas as pd
 
     curated_zone = paths["curated"]
-    # 10% threshold — strict enough to catch schema merge issues
+    # 10% threshold, strict enough to catch schema merge issues
     threshold = float(os.getenv("NULL_RATIO_THRESHOLD", "0.10"))
 
     violations = []
@@ -112,7 +112,7 @@ def check_null_ratios(**context):
                     f"NullRatioError in {f} → column '{col}': null ratio = {null_ratio:.1%} "
                     f"(threshold: {threshold:.0%}, total rows: {len(df)}). "
                     f"High nulls in combined data often mean two files with different schemas "
-                    f"were merged together — check transform_aggregate logic."
+                    f"were merged together. Check transform_aggregate logic."
                 )
 
     if violations:
@@ -121,7 +121,7 @@ def check_null_ratios(**context):
             + "\n".join(f"  {v}" for v in violations)
         )
 
-    print(f"Null ratio check PASSED — all columns below {threshold:.0%} null threshold")
+    print(f"Null ratio check PASSED, all columns below {threshold:.0%} null threshold")
     emit_dataset_lineage(
         job_name="data_quality_checks.check_null_ratios",
         inputs=["curated/curated_combined_data.csv"],
@@ -133,7 +133,7 @@ def check_row_counts(**context):
     """Ensure datasets have a minimum number of rows.
 
     Failure scenarios:
-      - RowCountError: dataset has 0 or very few rows — possible upstream failure
+      - RowCountError: dataset has 0 or very few rows, likely an upstream failure
         that produced empty output silently without raising an error
     """
     import os
@@ -151,14 +151,14 @@ def check_row_counts(**context):
         if len(df) < min_rows:
             errors.append(
                 f"RowCountError in {f}: only {len(df)} row(s) found (minimum: {min_rows}). "
-                f"Dataset is suspiciously small — possible data loss in transformation. "
+                f"Dataset is suspiciously small, possible data loss in transformation. "
                 f"Check data_ingestion ran successfully and landing/ folder has source files."
             )
 
     if errors:
         raise ValueError("Row count check FAILED:\n" + "\n".join(f"  {e}" for e in errors))
 
-    print(f"Row count check PASSED — all datasets have >= {min_rows} rows")
+    print(f"Row count check PASSED, all datasets have >= {min_rows} rows")
     emit_dataset_lineage(
         job_name="data_quality_checks.check_row_counts",
         inputs=["curated/curated_combined_data.csv"],
@@ -170,7 +170,7 @@ def check_duplicates(**context):
     """Check for duplicate rows in curated datasets.
 
     Failure scenarios:
-      - DuplicateError: >5% duplicate rows — idempotency issue or double ingestion
+      - DuplicateError: >5% duplicate rows, an idempotency issue or double ingestion
         (e.g. data_ingestion ran twice copying the same source files)
     """
     import os
@@ -206,7 +206,7 @@ def check_duplicates(**context):
     if violations:
         raise ValueError("Duplicate check FAILED:\n" + "\n".join(f"  {v}" for v in violations))
 
-    print(f"Duplicate check PASSED — all datasets below {max_dup_ratio:.0%} duplicate threshold")
+    print(f"Duplicate check PASSED, all datasets below {max_dup_ratio:.0%} duplicate threshold")
     emit_dataset_lineage(
         job_name="data_quality_checks.check_duplicates",
         inputs=["curated/curated_combined_data.csv"],

@@ -1,4 +1,4 @@
-"""DAG: data_ingestion — Ingests data from sources into the raw data lake zone.
+"""DAG: data_ingestion. Ingests data from sources into the raw data lake zone.
 
 OpenLineage is auto-enabled via the openlineage-airflow provider.
 Every task emits START/COMPLETE/FAIL lineage events to Marquez.
@@ -27,7 +27,7 @@ default_args = {
     "retry_delay": timedelta(minutes=5),
 }
 
-# Expected columns for each known file — any deviation triggers a SchemaValidationError
+# Expected columns for each known file; any deviation triggers a SchemaValidationError
 REQUIRED_SCHEMAS = {
     "sales_data.csv": ["id", "product", "category", "quantity", "price", "status", "region"],
     "user_events.csv": ["user_id", "event_type", "timestamp", "page", "duration_seconds", "status"],
@@ -119,7 +119,7 @@ def validate_raw_data(**context):
     for fname, required_cols in REQUIRED_SCHEMAS.items():
         fpath = join_path(raw_zone, fname)
         if not path_exists(fpath):
-            # Not present yet — soft warning (ingest may not have run)
+            # Not present yet, just a soft warning since ingest may not have run
             print(f"WARNING: expected file {fname} not found in raw zone")
             continue
 
@@ -161,7 +161,7 @@ def validate_raw_data(**context):
                 if negative_qty > 0:
                     errors.append(
                         f"DataQualityError: sales_data.csv has {negative_qty} negative quantity value(s). "
-                        f"Negative quantities are not allowed — check source system for data entry errors."
+                        f"Negative quantities are not allowed. Check source system for data entry errors."
                     )
         except Exception as e:
             errors.append(f"ReadError: Could not read sales_data.csv for type checking: {e}")
@@ -173,7 +173,7 @@ def validate_raw_data(**context):
             f"Fix the issues above before data_transformation can proceed."
         )
 
-    print(f"Validated {len(all_files)} files in raw zone — all checks passed")
+    print(f"Validated {len(all_files)} files in raw zone, all checks passed")
     emit_dataset_lineage(
         job_name="data_ingestion.validate_raw_data",
         inputs=["raw/sales_data.csv", "raw/user_events.csv", "raw/api_data.json"],

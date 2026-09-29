@@ -11,7 +11,7 @@ kubernetes>=29.0
 # ── Vector DB (free, open-source) ─────────────────────────
 chromadb>=0.4.24
 
-# ── Embeddings (free, local model — ~80 MB) ──────────────
+# ── Embeddings (free, local model, ~80 MB) ──────────────
 sentence-transformers>=2.5.0
 
 # ── Data processing (used in DAGs and scripts) ───────────

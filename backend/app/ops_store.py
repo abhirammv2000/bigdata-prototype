@@ -55,7 +55,7 @@ def save_ops_snapshot(snapshot: dict[str, Any]) -> None:
         except Exception:
             pass  # fall through to local file
 
-    # Local dev fallback — write to /tmp
+    # Local dev fallback: write to /tmp
     os.makedirs(os.path.dirname(_LOCAL_SNAPSHOT), exist_ok=True)
     with open(_LOCAL_SNAPSHOT, "w") as f:
         json.dump(snapshot, f, indent=2)
